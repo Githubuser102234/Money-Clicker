@@ -7,28 +7,72 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 20px;
-      background: #f0f0f0;
-    }
-    #money {
-      font-size: 32px;
-      margin-bottom: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin: 10px;
-      cursor: pointer;
-    }
-    .shop-item {
-      border: 1px solid #aaa;
-      padding: 10px;
-      margin: 10px auto;
-      width: 300px;
-      background: white;
-    }
-    .shop-item h3 {
+      background: linear-gradient(to bottom, #4CAF50, #2E7D32);
       margin: 0;
+      padding: 40px 20px;
+      color: white;
+    }
+
+    #money {
+      font-size: 36px;
+      margin-bottom: 30px;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    #clicker {
+      font-size: 80px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    #clicker:hover {
+      transform: scale(1.1);
+    }
+
+    #clicker:active {
+      transform: scale(0.95);
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .shop-item {
+      border: 2px solid #fff;
+      padding: 15px;
+      margin: 15px auto;
+      width: 320px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .shop-item h3 {
+      margin: 0 0 10px 0;
+    }
+
+    .shop-item p {
+      margin: 5px 0;
+    }
+
+    .shop-item button {
+      padding: 8px 16px;
+      font-size: 16px;
+      background-color: #ffffff;
+      color: #2E7D32;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .shop-item button:hover {
+      background-color: #e0e0e0;
     }
   </style>
 </head>
@@ -36,7 +80,7 @@
 
   <h1>Money Clicker</h1>
   <div id="money">Money: $0</div>
-  <button onclick="earnMoney()">Click to Earn</button>
+  <button id="clicker" onclick="earnMoney()">💵</button>
 
   <h2>Shop</h2>
   <div id="shop"></div>
