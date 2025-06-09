@@ -181,10 +181,14 @@
       return Math.floor(upg.basePrice * Math.pow(1.15, upg.amount));
     }
 
-    function earnMoney(event = null) {
+    function earnMoney(event) {
       const clickPower = 1 + upgrades[0].amount * upgrades[0].multiplier;
       money += clickPower;
-      if (event) showFloatingText(`+$${clickPower}`, event);
+
+      if (event && event.isTrusted) {
+        showFloatingText(`+$${clickPower}`, event);
+      }
+
       updateDisplay();
     }
 
@@ -238,7 +242,7 @@
         }
         if (upg.autoClick && upg.amount > 0) {
           for (let i = 0; i < upg.amount; i++) {
-            earnMoney();
+            earnMoney(); // called without event — works now
           }
         }
       });
@@ -260,9 +264,7 @@
         money = data.money ?? 0;
         if (data.upgradeAmounts) {
           data.upgradeAmounts.forEach((amt, i) => {
-            if (upgrades[i]) {
-              upgrades[i].amount = amt || 0;
-            }
+            if (upgrades[i]) upgrades[i].amount = amt || 0;
           });
         }
       }
@@ -271,7 +273,7 @@
     window.onload = () => {
       loadGame();
       updateDisplay();
-      setInterval(gameLoop, 1000);  // Start game loop *after* loading
+      setInterval(gameLoop, 1000);
       setInterval(saveGame, 5000);
     };
   </script>
