@@ -5,66 +5,69 @@
   <title>Money Clicker</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+      background: linear-gradient(to bottom, #388e3c, #1b5e20);
+      color: #fff;
       margin: 0;
       padding: 40px 20px;
-      color: white;
     }
 
     #money {
-      font-size: 36px;
+      font-size: 40px;
       margin-bottom: 30px;
       font-weight: bold;
-      text-shadow: 1px 1px 2px #000;
+      text-shadow: 2px 2px 3px #000;
     }
 
     #clicker {
-      font-size: 80px;
+      font-size: 100px;
       background: none;
       border: none;
       cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-
-    #clicker:hover {
-      transform: scale(1.1);
+      transition: transform 0.2s ease;
     }
 
     #clicker:active {
-      transform: scale(0.95);
+      animation: bounce 0.3s;
+    }
+
+    @keyframes bounce {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.2); }
+      100% { transform: scale(1); }
     }
 
     h2 {
-      margin-top: 40px;
+      margin-top: 50px;
       color: #fff;
-      text-shadow: 1px 1px 2px #000;
     }
 
     .shop-item {
-      border: 2px solid #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #ffffff;
+      border-radius: 12px;
       padding: 15px;
       margin: 15px auto;
-      width: 320px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      width: 340px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     }
 
     .shop-item h3 {
       margin: 0 0 10px 0;
+      color: #ffffff;
     }
 
     .shop-item p {
       margin: 5px 0;
+      color: #e0f2f1;
     }
 
     .shop-item button {
       padding: 8px 16px;
       font-size: 16px;
       background-color: #ffffff;
-      color: #2E7D32;
+      color: #1b5e20;
       border: none;
       border-radius: 6px;
       cursor: pointer;
@@ -72,7 +75,7 @@
     }
 
     .shop-item button:hover {
-      background-color: #e0e0e0;
+      background-color: #dcedc8;
     }
   </style>
 </head>
@@ -94,26 +97,34 @@
         basePrice: 10,
         amount: 0,
         multiplier: 1,
-        interval: 0,
+        interval: 0
       },
       {
         name: "Worker",
         basePrice: 50,
         amount: 0,
         multiplier: 1,
-        interval: 1000,
+        interval: 1000
       },
       {
         name: "Factory",
         basePrice: 500,
         amount: 0,
         multiplier: 5,
+        interval: 1000
+      },
+      {
+        name: "Auto Clicker",
+        basePrice: 1000,
+        amount: 0,
+        multiplier: 1,
         interval: 1000,
+        autoClick: true
       }
     ];
 
-    function getPrice(upgrade) {
-      return Math.floor(upgrade.basePrice * Math.pow(1.15, upgrade.amount));
+    function getPrice(upg) {
+      return Math.floor(upg.basePrice * Math.pow(1.15, upg.amount));
     }
 
     function earnMoney() {
@@ -129,6 +140,7 @@
         money -= price;
         upgrade.amount++;
         updateDisplay();
+        saveGame();
       }
     }
 
@@ -137,9 +149,9 @@
       const shop = document.getElementById("shop");
       shop.innerHTML = '';
       upgrades.forEach((upgrade, index) => {
+        const price = getPrice(upgrade);
         const item = document.createElement("div");
         item.className = "shop-item";
-        const price = getPrice(upgrade);
         item.innerHTML = `
           <h3>${upgrade.name}</h3>
           <p>Owned: ${upgrade.amount}</p>
@@ -150,14 +162,46 @@
       });
     }
 
+    // Passive income and auto click
     setInterval(() => {
-      upgrades.forEach(upg => {
+      upgrades.forEach((upg, i) => {
         if (upg.interval > 0 && upg.amount > 0) {
           money += upg.amount * upg.multiplier;
+        }
+        if (upg.autoClick && upg.amount > 0) {
+          for (let i = 0; i < upg.amount; i++) earnMoney();
         }
       });
       updateDisplay();
     }, 1000);
+
+    // Save & Load
+    function saveGame() {
+      const saveData = {
+        money,
+        upgrades
+      };
+      localStorage.setItem("moneyClickerSave", JSON.stringify(saveData));
+    }
+
+    function loadGame() {
+      const save = localStorage.getItem("moneyClickerSave");
+      if (save) {
+        const data = JSON.parse(save);
+        money = data.money || 0;
+        if (data.upgrades) {
+          data.upgrades.forEach((savedUpgrade, i) => {
+            if (upgrades[i]) {
+              upgrades[i].amount = savedUpgrade.amount || 0;
+            }
+          });
+        }
+        updateDisplay();
+      }
+    }
+
+    setInterval(saveGame, 5000);
+    window.onload = loadGame;
 
     updateDisplay();
   </script>
