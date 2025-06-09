@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Githubuser102234/Money-Clicker/refs/heads/main/IMG_1028.webp" /> 
+  <link rel="apple-touch-icon" href="💵.png" />
   <title>Money Clicker</title>
   <style>
     html, body {
@@ -217,14 +217,12 @@
       });
     }
 
-    // Floating text animation
     function showFloatingText(text, event) {
       const clicker = document.getElementById("clicker");
       const float = document.createElement("div");
       float.className = "floating-text";
       float.innerText = text;
 
-      // Position
       const rect = clicker.getBoundingClientRect();
       float.style.left = `${rect.left + rect.width / 2 - 20}px`;
       float.style.top = `${rect.top + window.scrollY - 20}px`;
@@ -233,7 +231,6 @@
       setTimeout(() => float.remove(), 1000);
     }
 
-    // Passive/Auto clicks
     setInterval(() => {
       upgrades.forEach(upg => {
         if (upg.interval > 0 && upg.amount > 0) {
@@ -248,7 +245,6 @@
       updateDisplay();
     }, 1000);
 
-    // Save/load
     function saveGame() {
       const save = {
         money,
@@ -261,7 +257,7 @@
       const saved = localStorage.getItem("moneyClickerSave");
       if (saved) {
         const data = JSON.parse(saved);
-        money = data.money || 0;
+        money = data.money ?? 0;
         if (data.upgrades) {
           data.upgrades.forEach((savedUpgrade, i) => {
             if (upgrades[i]) {
@@ -269,13 +265,15 @@
             }
           });
         }
-        updateDisplay();
       }
     }
 
     setInterval(saveGame, 5000);
-    window.onload = loadGame;
-    updateDisplay();
+
+    window.onload = () => {
+      loadGame();
+      updateDisplay();
+    };
   </script>
 </body>
 </html>
