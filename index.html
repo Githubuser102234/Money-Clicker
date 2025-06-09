@@ -125,6 +125,25 @@
         transform: translateY(-60px);
       }
     }
+
+    .controls {
+      margin-top: 30px;
+    }
+
+    .controls button {
+      margin: 5px;
+      padding: 8px 14px;
+      font-size: 14px;
+      background-color: #aed581;
+      border: none;
+      color: #1b5e20;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      background-color: #9ccc65;
+    }
   </style>
 </head>
 <body>
@@ -136,6 +155,13 @@
   <div class="shop-container">
     <h2>Shop</h2>
     <div id="shop"></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="resetGame()">Reset Game</button>
+    <button onclick="exportSave()">Export Save</button>
+    <button onclick="document.getElementById('importInput').click()">Import Save</button>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importSave(event)">
   </div>
 
   <script>
@@ -197,7 +223,7 @@
       }
 
       updateDisplay();
-      saveGame(); // ✅ Save after every click
+      saveGame();
     }
 
     function buyUpgrade(index) {
@@ -253,7 +279,7 @@
         }
       });
       updateDisplay();
-      saveGame(); // ✅ Save every second when passive income runs
+      saveGame();
     }
 
     function saveGame() {
@@ -277,11 +303,53 @@
       }
     }
 
+    function resetGame() {
+      if (confirm("Are you sure you want to reset your game? This cannot be undone.")) {
+        money = 0;
+        upgrades.forEach(upg => upg.amount = 0);
+        saveGame();
+        updateDisplay();
+      }
+    }
+
+    function exportSave() {
+      const data = localStorage.getItem("moneyClickerSave");
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "moneyClickerSave.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importSave(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.money !== undefined && Array.isArray(data.upgradeAmounts)) {
+            localStorage.setItem("moneyClickerSave", JSON.stringify(data));
+            loadGame();
+            updateDisplay();
+            alert("Save imported successfully!");
+          } else {
+            alert("Invalid save file.");
+          }
+        } catch {
+          alert("Failed to load save file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
     window.onload = () => {
       loadGame();
       updateDisplay();
-      setInterval(gameLoop, 1000);      // run passive earnings
-      setInterval(saveGame, 5000);      // periodic save (backup)
+      setInterval(gameLoop, 1000);
+      setInterval(saveGame, 5000);
     };
   </script>
 </body>
