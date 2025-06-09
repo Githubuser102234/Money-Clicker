@@ -197,6 +197,7 @@
       }
 
       updateDisplay();
+      saveGame(); // ✅ Save after every click
     }
 
     function buyUpgrade(index) {
@@ -252,6 +253,7 @@
         }
       });
       updateDisplay();
+      saveGame(); // ✅ Save every second when passive income runs
     }
 
     function saveGame() {
@@ -278,8 +280,8 @@
     window.onload = () => {
       loadGame();
       updateDisplay();
-      setInterval(gameLoop, 1000);
-      setInterval(saveGame, 5000);
+      setInterval(gameLoop, 1000);      // run passive earnings
+      setInterval(saveGame, 5000);      // periodic save (backup)
     };
   </script>
 </body>
