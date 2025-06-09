@@ -6,18 +6,22 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      background: linear-gradient(to bottom, #388e3c, #1b5e20);
-      color: #fff;
+      background-color: #e8f5e9;
+      color: #2e7d32;
       margin: 0;
-      padding: 40px 20px;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
     }
 
     #money {
-      font-size: 40px;
-      margin-bottom: 30px;
+      font-size: 32px;
       font-weight: bold;
-      text-shadow: 2px 2px 3px #000;
+      margin-bottom: 30px;
     }
 
     #clicker {
@@ -29,7 +33,7 @@
     }
 
     #clicker:active {
-      animation: bounce 0.3s;
+      animation: bounce 0.2s;
     }
 
     @keyframes bounce {
@@ -38,44 +42,57 @@
       100% { transform: scale(1); }
     }
 
-    h2 {
-      margin-top: 50px;
-      color: #fff;
+    .shop-container {
+      background-color: #f1f8e9;
+      border: 2px solid #c8e6c9;
+      border-radius: 14px;
+      max-width: 400px;
+      margin: 40px auto 0 auto;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .shop-container h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #1b5e20;
     }
 
     .shop-item {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid #ffffff;
-      border-radius: 12px;
-      padding: 15px;
-      margin: 15px auto;
-      width: 340px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 15px;
+      text-align: left;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .shop-item h3 {
-      margin: 0 0 10px 0;
-      color: #ffffff;
+      margin: 0 0 5px;
+      font-size: 18px;
+      color: #2e7d32;
     }
 
     .shop-item p {
-      margin: 5px 0;
-      color: #e0f2f1;
+      margin: 4px 0;
+      font-size: 14px;
+      color: #4e944f;
     }
 
     .shop-item button {
-      padding: 8px 16px;
-      font-size: 16px;
-      background-color: #ffffff;
-      color: #1b5e20;
+      float: right;
+      margin-top: -40px;
+      background-color: #a5d6a7;
       border: none;
+      color: #1b5e20;
+      padding: 6px 14px;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.2s;
+      font-weight: bold;
     }
 
     .shop-item button:hover {
-      background-color: #dcedc8;
+      background-color: #81c784;
     }
   </style>
 </head>
@@ -85,8 +102,10 @@
   <div id="money">Money: $0</div>
   <button id="clicker" onclick="earnMoney()">💵</button>
 
-  <h2>Shop</h2>
-  <div id="shop"></div>
+  <div class="shop-container">
+    <h2>Shop</h2>
+    <div id="shop"></div>
+  </div>
 
   <script>
     let money = 0;
@@ -97,21 +116,24 @@
         basePrice: 10,
         amount: 0,
         multiplier: 1,
-        interval: 0
+        interval: 0,
+        description: "Each click gives +1 extra dollar."
       },
       {
         name: "Worker",
         basePrice: 50,
         amount: 0,
         multiplier: 1,
-        interval: 1000
+        interval: 1000,
+        description: "Earns $1 every second."
       },
       {
         name: "Factory",
         basePrice: 500,
         amount: 0,
         multiplier: 5,
-        interval: 1000
+        interval: 1000,
+        description: "Earns $5 every second."
       },
       {
         name: "Auto Clicker",
@@ -119,7 +141,8 @@
         amount: 0,
         multiplier: 1,
         interval: 1000,
-        autoClick: true
+        autoClick: true,
+        description: "Clicks for you every second."
       }
     ];
 
@@ -134,11 +157,11 @@
     }
 
     function buyUpgrade(index) {
-      const upgrade = upgrades[index];
-      const price = getPrice(upgrade);
+      const upg = upgrades[index];
+      const price = getPrice(upg);
       if (money >= price) {
         money -= price;
-        upgrade.amount++;
+        upg.amount++;
         updateDisplay();
         saveGame();
       }
@@ -148,46 +171,48 @@
       document.getElementById("money").innerText = `Money: $${money.toLocaleString()}`;
       const shop = document.getElementById("shop");
       shop.innerHTML = '';
-      upgrades.forEach((upgrade, index) => {
-        const price = getPrice(upgrade);
+      upgrades.forEach((upg, index) => {
+        const price = getPrice(upg);
         const item = document.createElement("div");
         item.className = "shop-item";
         item.innerHTML = `
-          <h3>${upgrade.name}</h3>
-          <p>Owned: ${upgrade.amount}</p>
-          <p>Price: $${price}</p>
+          <h3>${upg.name}</h3>
+          <p>${upg.description}</p>
+          <p>Owned: ${upg.amount} | Cost: $${price}</p>
           <button onclick="buyUpgrade(${index})">Buy</button>
         `;
         shop.appendChild(item);
       });
     }
 
-    // Passive income and auto click
+    // Passive and auto click
     setInterval(() => {
-      upgrades.forEach((upg, i) => {
+      upgrades.forEach(upg => {
         if (upg.interval > 0 && upg.amount > 0) {
           money += upg.amount * upg.multiplier;
         }
         if (upg.autoClick && upg.amount > 0) {
-          for (let i = 0; i < upg.amount; i++) earnMoney();
+          for (let i = 0; i < upg.amount; i++) {
+            earnMoney();
+          }
         }
       });
       updateDisplay();
     }, 1000);
 
-    // Save & Load
+    // Save/load
     function saveGame() {
-      const saveData = {
+      const save = {
         money,
         upgrades
       };
-      localStorage.setItem("moneyClickerSave", JSON.stringify(saveData));
+      localStorage.setItem("moneyClickerSave", JSON.stringify(save));
     }
 
     function loadGame() {
-      const save = localStorage.getItem("moneyClickerSave");
-      if (save) {
-        const data = JSON.parse(save);
+      const saved = localStorage.getItem("moneyClickerSave");
+      if (saved) {
+        const data = JSON.parse(saved);
         money = data.money || 0;
         if (data.upgrades) {
           data.upgrades.forEach((savedUpgrade, i) => {
@@ -202,9 +227,7 @@
 
     setInterval(saveGame, 5000);
     window.onload = loadGame;
-
     updateDisplay();
   </script>
-
 </body>
 </html>
