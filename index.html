@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="💵.png" /> <!-- Replace with your icon if needed -->
   <title>Money Clicker</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #e8f5e9;
-      color: #2e7d32;
+    html, body {
       margin: 0;
-      padding: 30px 20px;
+      padding: 0;
+      height: 100%;
+      background-color: #e8f5e9;
+      font-family: 'Segoe UI', sans-serif;
+      color: #2e7d32;
+      overflow-x: hidden;
+    }
+
+    body {
       text-align: center;
+      padding: 30px 10px 100px;
     }
 
     h1 {
@@ -30,6 +40,7 @@
       border: none;
       cursor: pointer;
       transition: transform 0.2s ease;
+      position: relative;
     }
 
     #clicker:active {
@@ -94,13 +105,33 @@
     .shop-item button:hover {
       background-color: #81c784;
     }
+
+    .floating-text {
+      position: absolute;
+      pointer-events: none;
+      font-weight: bold;
+      color: #2e7d32;
+      font-size: 20px;
+      animation: floatUp 1s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-60px);
+      }
+    }
   </style>
 </head>
 <body>
 
   <h1>Money Clicker</h1>
   <div id="money">Money: $0</div>
-  <button id="clicker" onclick="earnMoney()">💵</button>
+  <button id="clicker" onclick="earnMoney(event)">💵</button>
 
   <div class="shop-container">
     <h2>Shop</h2>
@@ -150,9 +181,10 @@
       return Math.floor(upg.basePrice * Math.pow(1.15, upg.amount));
     }
 
-    function earnMoney() {
+    function earnMoney(event = null) {
       const clickPower = 1 + upgrades[0].amount * upgrades[0].multiplier;
       money += clickPower;
+      showFloatingText(`+$${clickPower}`, event);
       updateDisplay();
     }
 
@@ -185,7 +217,23 @@
       });
     }
 
-    // Passive and auto click
+    // Floating text animation
+    function showFloatingText(text, event) {
+      const clicker = document.getElementById("clicker");
+      const float = document.createElement("div");
+      float.className = "floating-text";
+      float.innerText = text;
+
+      // Position
+      const rect = clicker.getBoundingClientRect();
+      float.style.left = `${rect.left + rect.width / 2 - 20}px`;
+      float.style.top = `${rect.top + window.scrollY - 20}px`;
+
+      document.body.appendChild(float);
+      setTimeout(() => float.remove(), 1000);
+    }
+
+    // Passive/Auto clicks
     setInterval(() => {
       upgrades.forEach(upg => {
         if (upg.interval > 0 && upg.amount > 0) {
