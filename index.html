@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Githubuser102234/Money-Clicker/refs/heads/main/IMG_1028.webp" />
-  title>Money Clicker</title>
+  <title>Money Clicker</title>
   <style>
     html, body {
       margin: 0;
@@ -248,7 +248,7 @@
     function saveGame() {
       const save = {
         money,
-        upgrades
+        upgradeAmounts: upgrades.map(u => u.amount)
       };
       localStorage.setItem("moneyClickerSave", JSON.stringify(save));
     }
@@ -258,10 +258,10 @@
       if (saved) {
         const data = JSON.parse(saved);
         money = data.money ?? 0;
-        if (data.upgrades) {
-          data.upgrades.forEach((savedUpgrade, i) => {
+        if (data.upgradeAmounts) {
+          data.upgradeAmounts.forEach((amt, i) => {
             if (upgrades[i]) {
-              upgrades[i].amount = savedUpgrade.amount || 0;
+              upgrades[i].amount = amt || 0;
             }
           });
         }
