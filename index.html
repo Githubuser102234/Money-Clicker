@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Money Clicker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    #money {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .shop-item {
+      border: 1px solid #aaa;
+      padding: 10px;
+      margin: 10px auto;
+      width: 300px;
+      background: white;
+    }
+    .shop-item h3 {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Money Clicker</h1>
+  <div id="money">Money: $0</div>
+  <button onclick="earnMoney()">Click to Earn</button>
+
+  <h2>Shop</h2>
+  <div id="shop"></div>
+
+  <script>
+    let money = 0;
+
+    const upgrades = [
+      {
+        name: "Cursor",
+        basePrice: 10,
+        amount: 0,
+        multiplier: 1,
+        interval: 0,
+      },
+      {
+        name: "Worker",
+        basePrice: 50,
+        amount: 0,
+        multiplier: 1,
+        interval: 1000,
+      },
+      {
+        name: "Factory",
+        basePrice: 500,
+        amount: 0,
+        multiplier: 5,
+        interval: 1000,
+      }
+    ];
+
+    function getPrice(upgrade) {
+      return Math.floor(upgrade.basePrice * Math.pow(1.15, upgrade.amount));
+    }
+
+    function earnMoney() {
+      const clickPower = 1 + upgrades[0].amount * upgrades[0].multiplier;
+      money += clickPower;
+      updateDisplay();
+    }
+
+    function buyUpgrade(index) {
+      const upgrade = upgrades[index];
+      const price = getPrice(upgrade);
+      if (money >= price) {
+        money -= price;
+        upgrade.amount++;
+        updateDisplay();
+      }
+    }
+
+    function updateDisplay() {
+      document.getElementById("money").innerText = `Money: $${money.toLocaleString()}`;
+      const shop = document.getElementById("shop");
+      shop.innerHTML = '';
+      upgrades.forEach((upgrade, index) => {
+        const item = document.createElement("div");
+        item.className = "shop-item";
+        const price = getPrice(upgrade);
+        item.innerHTML = `
+          <h3>${upgrade.name}</h3>
+          <p>Owned: ${upgrade.amount}</p>
+          <p>Price: $${price}</p>
+          <button onclick="buyUpgrade(${index})">Buy</button>
+        `;
+        shop.appendChild(item);
+      });
+    }
+
+    setInterval(() => {
+      upgrades.forEach(upg => {
+        if (upg.interval > 0 && upg.amount > 0) {
+          money += upg.amount * upg.multiplier;
+        }
+      });
+      updateDisplay();
+    }, 1000);
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>
