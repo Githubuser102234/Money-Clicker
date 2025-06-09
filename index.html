@@ -2,52 +2,141 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Githubuser102234/Money-Clicker/refs/heads/main/IMG_1028.webp" />
   <title>Money Clicker</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       background-color: #e8f5e9;
+      font-family: 'Segoe UI', sans-serif;
       color: #2e7d32;
-      text-align: center;
-      padding: 30px;
+      overflow-x: hidden;
     }
+
+    body {
+      text-align: center;
+      padding: 30px 10px 100px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
     #money {
       font-size: 32px;
       font-weight: bold;
-      margin: 20px;
+      margin-bottom: 30px;
     }
+
     #clicker {
       font-size: 100px;
-      cursor: pointer;
-      border: none;
       background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      position: relative;
     }
+
+    #clicker:active {
+      animation: bounce 0.2s;
+    }
+
+    @keyframes bounce {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
     .shop-container {
-      margin-top: 40px;
+      background-color: #f1f8e9;
+      border: 2px solid #c8e6c9;
+      border-radius: 14px;
       max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 40px auto 0 auto;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
+
+    .shop-container h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #1b5e20;
+    }
+
     .shop-item {
-      background: #fff;
-      border: 1px solid #c8e6c9;
-      padding: 10px;
-      margin-bottom: 10px;
+      background: #ffffff;
       border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 15px;
       text-align: left;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+
+    .shop-item h3 {
+      margin: 0 0 5px;
+      font-size: 18px;
+      color: #2e7d32;
+    }
+
+    .shop-item p {
+      margin: 4px 0;
+      font-size: 14px;
+      color: #4e944f;
+    }
+
     .shop-item button {
       float: right;
+      margin-top: -40px;
+      background-color: #a5d6a7;
+      border: none;
+      color: #1b5e20;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .shop-item button:hover {
+      background-color: #81c784;
+    }
+
+    .floating-text {
+      position: absolute;
+      pointer-events: none;
+      font-weight: bold;
+      color: #2e7d32;
+      font-size: 20px;
+      animation: floatUp 1s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-60px);
+      }
     }
   </style>
 </head>
 <body>
+
   <h1>Money Clicker</h1>
   <div id="money">Money: $0</div>
-  <button id="clicker" onclick="handleManualClick(event)">💵</button>
+  <button id="clicker" onclick="earnMoney(event)">💵</button>
 
-  <div class="shop-container" id="shop"></div>
+  <div class="shop-container">
+    <h2>Shop</h2>
+    <div id="shop"></div>
+  </div>
 
   <script>
     let money = 0;
@@ -59,6 +148,7 @@
         amount: 0,
         multiplier: 1,
         interval: 0,
+        autoClick: false,
         description: "Each click gives +1 extra dollar."
       },
       {
@@ -67,6 +157,7 @@
         amount: 0,
         multiplier: 1,
         interval: 1000,
+        autoClick: false,
         description: "Earns $1 every second."
       },
       {
@@ -75,6 +166,7 @@
         amount: 0,
         multiplier: 5,
         interval: 1000,
+        autoClick: false,
         description: "Earns $5 every second."
       },
       {
@@ -96,27 +188,22 @@
       return 1 + upgrades[0].amount * upgrades[0].multiplier;
     }
 
-    function getPassiveIncome() {
-      return upgrades
-        .filter(u => u.interval > 0 && !u.autoClick)
-        .reduce((sum, u) => sum + u.amount * u.multiplier, 0);
-    }
+    function earnMoney(event) {
+      const clickPower = getClickPower();
+      money += clickPower;
 
-    function getAutoClickCount() {
-      return upgrades.find(u => u.autoClick)?.amount || 0;
-    }
+      if (event && event.isTrusted) {
+        showFloatingText(`+$${clickPower}`, event);
+      }
 
-    function handleManualClick(event) {
-      const amount = getClickPower();
-      money += amount;
       updateDisplay();
     }
 
     function buyUpgrade(index) {
       const upg = upgrades[index];
-      const cost = getPrice(upg);
-      if (money >= cost) {
-        money -= cost;
+      const price = getPrice(upg);
+      if (money >= price) {
+        money -= price;
         upg.amount++;
         updateDisplay();
         saveGame();
@@ -124,50 +211,65 @@
     }
 
     function updateDisplay() {
-      document.getElementById("money").textContent = `Money: $${money.toLocaleString()}`;
+      document.getElementById("money").innerText = `Money: $${money.toLocaleString()}`;
       const shop = document.getElementById("shop");
       shop.innerHTML = '';
       upgrades.forEach((upg, index) => {
         const price = getPrice(upg);
-        const div = document.createElement('div');
-        div.className = 'shop-item';
-        div.innerHTML = `
-          <strong>${upg.name}</strong><br>
-          <small>${upg.description}</small><br>
-          Owned: ${upg.amount} | Cost: $${price}
+        const item = document.createElement("div");
+        item.className = "shop-item";
+        item.innerHTML = `
+          <h3>${upg.name}</h3>
+          <p>${upg.description}</p>
+          <p>Owned: ${upg.amount} | Cost: $${price}</p>
           <button onclick="buyUpgrade(${index})">Buy</button>
         `;
-        shop.appendChild(div);
+        shop.appendChild(item);
       });
     }
 
+    function showFloatingText(text, event) {
+      const clicker = document.getElementById("clicker");
+      const float = document.createElement("div");
+      float.className = "floating-text";
+      float.innerText = text;
+
+      const rect = clicker.getBoundingClientRect();
+      float.style.left = `${rect.left + rect.width / 2 - 20}px`;
+      float.style.top = `${rect.top + window.scrollY - 20}px`;
+
+      document.body.appendChild(float);
+      setTimeout(() => float.remove(), 1000);
+    }
+
     function gameLoop() {
-      // Add passive income
-      money += getPassiveIncome();
-
-      // Auto clicker
-      const autoClicks = getAutoClickCount();
-      if (autoClicks > 0) {
-        money += getClickPower() * autoClicks;
-      }
-
+      upgrades.forEach(upg => {
+        if (upg.interval > 0 && upg.amount > 0 && !upg.autoClick) {
+          money += upg.amount * upg.multiplier;
+        }
+        if (upg.autoClick && upg.amount > 0) {
+          money += getClickPower() * upg.amount;
+        }
+      });
       updateDisplay();
     }
 
     function saveGame() {
-      localStorage.setItem("moneyClickerSave", JSON.stringify({
+      const save = {
         money,
         upgradeAmounts: upgrades.map(u => u.amount)
-      }));
+      };
+      localStorage.setItem("moneyClickerSave", JSON.stringify(save));
     }
 
     function loadGame() {
-      const data = JSON.parse(localStorage.getItem("moneyClickerSave"));
-      if (data) {
+      const saved = localStorage.getItem("moneyClickerSave");
+      if (saved) {
+        const data = JSON.parse(saved);
         money = data.money ?? 0;
-        if (Array.isArray(data.upgradeAmounts)) {
+        if (data.upgradeAmounts) {
           data.upgradeAmounts.forEach((amt, i) => {
-            if (upgrades[i]) upgrades[i].amount = amt || 0;
+            if (typeof amt === 'number') upgrades[i].amount = amt;
           });
         }
       }
