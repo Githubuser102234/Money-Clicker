@@ -184,7 +184,7 @@
     function earnMoney(event = null) {
       const clickPower = 1 + upgrades[0].amount * upgrades[0].multiplier;
       money += clickPower;
-      showFloatingText(`+$${clickPower}`, event);
+      if (event) showFloatingText(`+$${clickPower}`, event);
       updateDisplay();
     }
 
@@ -231,7 +231,7 @@
       setTimeout(() => float.remove(), 1000);
     }
 
-    setInterval(() => {
+    function gameLoop() {
       upgrades.forEach(upg => {
         if (upg.interval > 0 && upg.amount > 0) {
           money += upg.amount * upg.multiplier;
@@ -243,7 +243,7 @@
         }
       });
       updateDisplay();
-    }, 1000);
+    }
 
     function saveGame() {
       const save = {
@@ -268,11 +268,11 @@
       }
     }
 
-    setInterval(saveGame, 5000);
-
     window.onload = () => {
       loadGame();
       updateDisplay();
+      setInterval(gameLoop, 1000);  // Start game loop *after* loading
+      setInterval(saveGame, 5000);
     };
   </script>
 </body>
