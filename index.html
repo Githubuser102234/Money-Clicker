@@ -350,6 +350,11 @@
       updateDisplay();
       setInterval(gameLoop, 1000);
       setInterval(saveGame, 5000);
+
+      // Prevent double-click zoom
+      document.body.addEventListener('dblclick', function(event) {
+        event.preventDefault();
+      }, { passive: false }); // Use { passive: false } for active event listeners
     };
   </script>
 </body>
